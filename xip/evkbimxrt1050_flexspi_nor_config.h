@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2018 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __EVKBIMXRT1050_FLEXSPI_NOR_CONFIG__
-#define __EVKBIMXRT1050_FLEXSPI_NOR_CONFIG__
+#ifndef __EVKMIMXRT1020_FLEXSPI_NOR_CONFIG__
+#define __EVKMIMXRT1020_FLEXSPI_NOR_CONFIG__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -266,4 +265,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EVKBIMXRT1050_FLEXSPI_NOR_CONFIG__ */
+#endif /* __EVKMIMXRT1020_FLEXSPI_NOR_CONFIG__ */
