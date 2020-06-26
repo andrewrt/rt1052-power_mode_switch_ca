@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stdio.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -341,6 +342,7 @@ static void PowerModeSwitchTask(void *pvParameters)
     {
         freq = CLOCK_GetFreq(kCLOCK_CpuClk);
 
+#if (HAS_DEBUG_CONSOLE)
         PRINTF("\r\n########## Power Mode Switch Demo (build %s) ###########\n\r\n", __DATE__);
         PRINTF("    Core Clock = %dHz \r\n", freq);
 
@@ -373,8 +375,8 @@ static void PowerModeSwitchTask(void *pvParameters)
         {
             ch -= 'a' - 'A';
         }
-
-        s_targetPowerMode = (lpm_power_mode_t)(ch - 'A');
+#endif
+        s_targetPowerMode = (lpm_power_mode_t)0;//(ch - 'A');
 
         if (s_targetPowerMode <= LPM_PowerModeEnd)
         {
@@ -468,7 +470,7 @@ int main(void)
     CLOCK_SetMux(kCLOCK_UartMux, 1); /* Set UART source to OSC 24M */
     CLOCK_SetDiv(kCLOCK_UartDiv, 0); /* Set UART divider to 1 */
 
-    BOARD_InitDebugConsole();
+//    BOARD_InitDebugConsole(); -- no UART Terminal here
 
     /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
      * connected to LCD power switch circuit. So it needs to be configured as a low-level output GPIO to reduce the
