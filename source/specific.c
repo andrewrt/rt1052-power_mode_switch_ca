@@ -48,7 +48,7 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     {
         case LPM_PowerModeOverRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0); // FLEXSPI in DDR mode
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in not DDR mode -> 0->1: divider of 2 -> 133MHz
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
             /* CORE CLK to 600MHz, AHB, IPG to 150MHz, PERCLK to 75MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
@@ -60,7 +60,7 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             break;
         case LPM_PowerModeFullRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0); // FLEXSPI in DDR mode
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in not DDR mode -> 0->1: divider of 2 -> 133MHz
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
             /* CORE CLK to 528MHz, AHB, IPG to 132MHz, PERCLK to 66MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
@@ -73,7 +73,7 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
         case LPM_PowerModeLowSpeedRun:
         case LPM_PowerModeSysIdle:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in DDR mode
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in not DDR mode, but divider of 2 OK here -> 133MHz
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 132MHz and AHB, IPG, PERCLK to 33MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 0);
