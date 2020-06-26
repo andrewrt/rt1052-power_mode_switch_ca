@@ -470,12 +470,8 @@ int main(void)
     CLOCK_SetMux(kCLOCK_UartMux, 1); /* Set UART source to OSC 24M */
     CLOCK_SetDiv(kCLOCK_UartDiv, 0); /* Set UART divider to 1 */
 
-//    BOARD_InitDebugConsole(); -- no UART Terminal here
+    BOARD_InitDebugConsole();// -- no UART Terminal here
 
-    /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
-     * connected to LCD power switch circuit. So it needs to be configured as a low-level output GPIO to reduce the
-     * current. */
-    BOARD_Init_PMIC_STBY_REQ();
     BOARD_InitBootPeripherals();
 
     PRINTF("\r\nCPU wakeup source 0x%x...\r\n", SRC->SRSR);
