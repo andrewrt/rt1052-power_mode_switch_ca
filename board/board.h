@@ -55,13 +55,13 @@
 
 /*! @brief Define the port interrupt number for the board switches */
 #ifndef BOARD_USER_BUTTON_GPIO
-#define BOARD_USER_BUTTON_GPIO GPIO5
+#define BOARD_USER_BUTTON_GPIO GPIO1
 #endif
 #ifndef BOARD_USER_BUTTON_GPIO_PIN
-#define BOARD_USER_BUTTON_GPIO_PIN (0U)
+#define BOARD_USER_BUTTON_GPIO_PIN (18U)
 #endif
-#define BOARD_USER_BUTTON_IRQ GPIO5_Combined_0_15_IRQn
-#define BOARD_USER_BUTTON_IRQ_HANDLER GPIO5_Combined_0_15_IRQHandler
+#define BOARD_USER_BUTTON_IRQ GPIO1_Combined_16_31_IRQn
+#define BOARD_USER_BUTTON_IRQ_HANDLER GPIO1_Combined_16_31_IRQHandler
 #define BOARD_USER_BUTTON_NAME "SW8"
 
 /*! @brief The hyper flash size */

@@ -61,16 +61,16 @@ void BOARD_InitPins(void) {
   CLOCK_EnableClock(kCLOCK_Iomuxc);           /* iomuxc clock (iomuxc_clk_enable): 0x03U */
   CLOCK_EnableClock(kCLOCK_IomuxcSnvs);       /* iomuxc_snvs clock (iomuxc_snvs_clk_enable): 0x03U */
 
-  /* GPIO configuration of SD_PWREN on WAKEUP (pin L6) */
+  /* GPIO configuration of IRQ pin - don't have wake pin wired */
   gpio_pin_config_t SD_PWREN_config = {
       .direction = kGPIO_DigitalInput,
       .outputLogic = 0U,
       .interruptMode = kGPIO_IntRisingEdge
   };
-  /* Initialize GPIO functionality on WAKEUP (pin L6) */
-  GPIO_PinInit(GPIO5, 0U, &SD_PWREN_config);
-  /* Enable GPIO pin interrupt on WAKEUP (pin L6) */
-  GPIO_PortEnableInterrupts(GPIO5, 1U << 0U);
+  /* Initialize GPIO functionality on GPIO IRQ pin - don't have wake pin wired */
+  GPIO_PinInit(GPIO1, 18U, &SD_PWREN_config);
+  /* Enable GPIO pin interrupt on GPIO IR pin - don't have wake pin wired */
+  GPIO_PortEnableInterrupts(GPIO1, 1U << 18U);
 
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_AD_B0_12_LPUART1_TX,        /* GPIO_AD_B0_12 is configured as LPUART1_TX */
