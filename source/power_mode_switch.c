@@ -342,7 +342,7 @@ static void PowerModeSwitchTask(void *pvParameters)
     {
         freq = CLOCK_GetFreq(kCLOCK_CpuClk);
 
-#if (HAS_DEBUG_CONSOLE)
+#if (1)
         PRINTF("\r\n########## Power Mode Switch Demo (build %s) ###########\n\r\n", __DATE__);
         PRINTF("    Core Clock = %dHz \r\n", freq);
 
@@ -470,7 +470,7 @@ int main(void)
     CLOCK_SetMux(kCLOCK_UartMux, 1); /* Set UART source to OSC 24M */
     CLOCK_SetDiv(kCLOCK_UartDiv, 0); /* Set UART divider to 1 */
 
-    BOARD_InitDebugConsole();// -- no UART Terminal here
+    BOARD_InitDebugConsole();
 
     BOARD_InitBootPeripherals();
 
