@@ -47,8 +47,8 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     switch (power_mode)
     {
         case LPM_PowerModeOverRun:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in not DDR mode -> 0->1: divider of 2 -> 133MHz
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK should not exceed 166MHz
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 6);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
             /* CORE CLK to 600MHz, AHB, IPG to 150MHz, PERCLK to 75MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
@@ -59,9 +59,9 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
             break;
         case LPM_PowerModeFullRun:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in not DDR mode -> 0->1: divider of 2 -> 133MHz
-            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK should not exceed 166MHz
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
+            CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 528MHz, AHB, IPG to 132MHz, PERCLK to 66MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
             CLOCK_SET_DIV(kCLOCK_IpgDiv, 3);
@@ -72,8 +72,8 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             break;
         case LPM_PowerModeLowSpeedRun:
         case LPM_PowerModeSysIdle:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3);    // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 2); // FLEXSPI in DDR mode
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK should not exceed 166MHz
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 132MHz and AHB, IPG, PERCLK to 33MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 0);
@@ -89,8 +89,8 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             CLOCK_SET_MUX(kCLOCK_PeriphClk2Mux, 1); // PERIPH_CLK2 mux to OSC
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 1);     // PERIPH_CLK mux to PERIPH_CLK2
             CLOCK_SET_DIV(kCLOCK_SemcDiv, 0);
-            CLOCK_SET_MUX(kCLOCK_SemcMux, 0);    // SEMC mux to PERIPH_CLK
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 1); // FLEXSPI in DDR mode
+            CLOCK_SET_MUX(kCLOCK_SemcMux, 0); // SEMC mux to PERIPH_CLK
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 0);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 0); // FLEXSPI mux to semc_clk_root_pre
             /* CORE CLK to 24MHz and AHB, IPG, PERCLK to 12MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 0);
@@ -106,15 +106,6 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     /* Enable clock gate of flexspi. */
     CCM->CCGR6 |= (CCM_CCGR6_CG5_MASK);
 
-    if ((LPM_PowerModeLowPowerRun == power_mode) || (LPM_PowerModeLPIdle == power_mode))
-    {
-        FLEXSPI_INST->DLLCR[0] = FLEXSPI_DLLCR_OVRDEN(1) | FLEXSPI_DLLCR_OVRDVAL(19);
-    }
-    else
-    {
-        FLEXSPI_INST->DLLCR[0] = FLEXSPI_DLLCR_DLLEN(1) | FLEXSPI_DLLCR_SLVDLYTARGET(15);
-    }
-
     FLEXSPI_INST->MCR0 &= ~FLEXSPI_MCR0_MDIS_MASK;
     FLEXSPI_INST->MCR0 |= FLEXSPI_MCR0_SWRESET_MASK;
     while (FLEXSPI_INST->MCR0 & FLEXSPI_MCR0_SWRESET_MASK)
@@ -129,9 +120,7 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
 void ClockSetToOverDriveRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
     ClockSelectXtalOsc();
 
     /* Init ARM PLL */
@@ -152,7 +141,7 @@ void ClockSetToOverDriveRun(void)
     /* Init USB1 PLL. */
     CLOCK_InitUsb1Pll(&usb1PllConfig_PowerMode);
     /* Init Usb1 pfd0. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);
+    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 12);
     /* Init Usb1 pfd1. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd1, 16);
     /* Init Usb1 pfd2. */
@@ -199,17 +188,13 @@ void ClockSetToOverDriveRun(void)
     }
     CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
 
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeOverRun);
-    LPM_ExitCritical();
 }
 
 void ClockSetToFullSpeedRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
     ClockSelectXtalOsc();
 
     /* Init ARM PLL */
@@ -230,7 +215,7 @@ void ClockSetToFullSpeedRun(void)
     /* Init USB1 PLL. */
     CLOCK_InitUsb1Pll(&usb1PllConfig_PowerMode);
     /* Init Usb1 pfd0. */
-    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);
+    CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 12);
     /* Init Usb1 pfd1. */
     CLOCK_InitUsb1Pfd(kCLOCK_Pfd1, 16);
     /* Init Usb1 pfd2. */
@@ -277,17 +262,13 @@ void ClockSetToFullSpeedRun(void)
     }
     CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
 
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeFullRun);
-    LPM_ExitCritical();
 }
 
 void ClockSetToLowSpeedRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
     ClockSelectXtalOsc();
 
     /* Deinit ARM PLL */
@@ -300,7 +281,7 @@ void ClockSetToLowSpeedRun(void)
     CLOCK_DeinitSysPfd(kCLOCK_Pfd0);
     CLOCK_DeinitSysPfd(kCLOCK_Pfd1);
     /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 18);
+    CLOCK_InitSysPfd(kCLOCK_Pfd2, 24);
     CLOCK_DeinitSysPfd(kCLOCK_Pfd3);
 
     /* Deinit USB1 PLL */
@@ -324,17 +305,13 @@ void ClockSetToLowSpeedRun(void)
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowSpeedRun);
-    LPM_ExitCritical();
 }
 
 void ClockSetToLowPowerRun(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
     ClockSelectRcOsc();
 
     /* Deinit ARM PLL */
@@ -376,9 +353,7 @@ void ClockSetToLowPowerRun(void)
 void ClockSetToSystemIdle(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
     ClockSelectXtalOsc();
 
     /* Deinit ARM PLL */
@@ -391,7 +366,7 @@ void ClockSetToSystemIdle(void)
     CLOCK_DeinitSysPfd(kCLOCK_Pfd0);
     CLOCK_DeinitSysPfd(kCLOCK_Pfd1);
     /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 18);
+    CLOCK_InitSysPfd(kCLOCK_Pfd2, 24);
     CLOCK_DeinitSysPfd(kCLOCK_Pfd3);
 
     /* Deinit USB1 PLL */
@@ -415,17 +390,13 @@ void ClockSetToSystemIdle(void)
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeSysIdle);
-    LPM_ExitCritical();
 }
 
 void ClockSetToLowPowerIdle(void)
 {
     // CORE CLK mux to 24M before reconfigure PLLs
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
-    LPM_ExitCritical();
     ClockSelectRcOsc();
 
     /* Deinit ARM PLL */
@@ -461,9 +432,7 @@ void ClockSetToLowPowerIdle(void)
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 
-    LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLPIdle);
-    LPM_ExitCritical();
 }
 
 void SetLowPowerClockGate(void)
@@ -611,6 +580,7 @@ void APP_PrintRunFrequency(int32_t run_freq_only)
         PRINTF("SYSPLLPFD3:      %d Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd3Clk));
         PRINTF("ENETPLL0:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll0Clk));
         PRINTF("ENETPLL1:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll1Clk));
+//        PRINTF("ENETPLL2:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll2Clk));
         PRINTF("AUDIOPLL:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_AudioPllClk));
         PRINTF("VIDEOPLL:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_VideoPllClk));
     }
