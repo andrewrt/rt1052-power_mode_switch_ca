@@ -311,7 +311,7 @@ static void APP_ShowPowerMode(lpm_power_mode_t powerMode)
     if (powerMode <= LPM_PowerModeEnd)
     {
         PRINTF("    Power mode: %s\r\n", s_modeNames[powerMode]);
-        APP_PrintRunFrequency(1);
+        APP_PrintRunFrequency(0);
     }
     else
     {
@@ -481,13 +481,16 @@ int main(void)
     PRINTF("\r\n***********************************************************\r\n");
     PRINTF("\tPower Mode Switch Demo for %s\r\n", CPU_NAME);
     PRINTF("***********************************************************\r\n");
-    APP_PrintRunFrequency(0);
 
     if (true != LPM_Init(s_curRunMode))
     {
         PRINTF("LPM Init Failed!\r\n");
         return -1;
     }
+
+    //set clocks based on specific.c instead of clockconfig.c:
+    LPM_OverDriveRun();
+    APP_PrintRunFrequency(0);
 
     s_wakeupSig = xSemaphoreCreateBinary();
     /* Make current resource count 0 for signal purpose */
