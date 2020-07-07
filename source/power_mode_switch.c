@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <stdio.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -342,7 +341,6 @@ static void PowerModeSwitchTask(void *pvParameters)
     {
         freq = CLOCK_GetFreq(kCLOCK_CpuClk);
 
-#if (1)
         PRINTF("\r\n########## Power Mode Switch Demo (build %s) ###########\n\r\n", __DATE__);
         PRINTF("    Core Clock = %dHz \r\n", freq);
 
@@ -375,8 +373,8 @@ static void PowerModeSwitchTask(void *pvParameters)
         {
             ch -= 'a' - 'A';
         }
-#endif
-        s_targetPowerMode = (lpm_power_mode_t)0;//(ch - 'A');
+
+        s_targetPowerMode = (lpm_power_mode_t)(ch - 'A');
 
         if (s_targetPowerMode <= LPM_PowerModeEnd)
         {
@@ -472,6 +470,10 @@ int main(void)
 
     BOARD_InitDebugConsole();
 
+    /* Since SNVS_PMIC_STBY_REQ_GPIO5_IO02 will output a high-level signal under Stop Mode(Suspend Mode) and this pin is
+     * connected to LCD power switch circuit. So it needs to be configured as a low-level output GPIO to reduce the
+     * current. */
+    BOARD_Init_PMIC_STBY_REQ();
     BOARD_InitBootPeripherals();
 
     PRINTF("\r\nCPU wakeup source 0x%x...\r\n", SRC->SRSR);
