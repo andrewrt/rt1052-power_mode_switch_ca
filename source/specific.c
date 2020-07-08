@@ -48,7 +48,7 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     {
         case LPM_PowerModeOverRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 6);
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 5);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
             /* CORE CLK to 600MHz, AHB, IPG to 150MHz, PERCLK to 75MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
