@@ -15,10 +15,10 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-extern void vPortGPTIsr(void);
+// extern void vPortGPTIsr(void);
 extern uint32_t g_savedPrimask;
 
-#define vPortGptIsr GPT1_IRQHandler
+// #define vPortGptIsr GPT1_IRQHandler
 
 #define CLOCK_CCM_HANDSHAKE_WAIT() \
                                    \
