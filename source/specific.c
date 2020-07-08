@@ -59,8 +59,8 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
             break;
         case LPM_PowerModeFullRun:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK @ 132 MHz - should not exceed 166MHz
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 2);  // FlexSPI @ 132 MHz
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 528MHz, AHB, IPG to 132MHz, PERCLK to 66MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
