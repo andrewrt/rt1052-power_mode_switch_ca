@@ -48,7 +48,7 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
     {
         case LPM_PowerModeOverRun:
             CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 6);
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 5);
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 3); // FLEXSPI mux to PLL3 PFD0
             /* CORE CLK to 600MHz, AHB, IPG to 150MHz, PERCLK to 75MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
@@ -59,8 +59,8 @@ void SwitchSystemClocks(lpm_power_mode_t power_mode)
             CLOCK_SET_MUX(kCLOCK_PeriphMux, 0);    // PERIPH_CLK mux to PRE_PERIPH_CLK
             break;
         case LPM_PowerModeFullRun:
-            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK should not exceed 166MHz
-            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 3);
+            CLOCK_SET_DIV(kCLOCK_SemcDiv, 3); // SEMC CLK @ 132 MHz - should not exceed 166MHz
+            CLOCK_SET_DIV(kCLOCK_FlexspiDiv, 2);  // FlexSPI @ 132 MHz
             CLOCK_SET_MUX(kCLOCK_FlexspiMux, 2); // FLEXSPI mux to PLL2 PFD2
             /* CORE CLK to 528MHz, AHB, IPG to 132MHz, PERCLK to 66MHz */
             CLOCK_SET_DIV(kCLOCK_PerclkDiv, 1);
@@ -160,33 +160,39 @@ void ClockSetToOverDriveRun(void)
     }
     CCM_ANALOG->PLL_USB2_CLR = CCM_ANALOG_PLL_USB2_BYPASS_MASK;
 
-    /* Init AUDIO PLL */
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_AUDIO & CCM_ANALOG_PLL_AUDIO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
+    /* Deinit AUDIO PLL */
+    CLOCK_DeinitAudioPll();
+    /* Deinit VIDEO PLL */
+    CLOCK_DeinitVideoPll();
+    /* Deinit ENET PLL */
+    CLOCK_DeinitEnetPll();
+    // /* Init AUDIO PLL */
+    // CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
+    // CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_POWERDOWN_MASK;
+    // CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_ENABLE_MASK;
+    // while ((CCM_ANALOG->PLL_AUDIO & CCM_ANALOG_PLL_AUDIO_LOCK_MASK) == 0)
+    // {
+    // }
+    // CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
 
-    /* Init VIDEO PLL */
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_VIDEO & CCM_ANALOG_PLL_VIDEO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
+    // /* Init VIDEO PLL */
+    // CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
+    // CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_POWERDOWN_MASK;
+    // CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_ENABLE_MASK;
+    // while ((CCM_ANALOG->PLL_VIDEO & CCM_ANALOG_PLL_VIDEO_LOCK_MASK) == 0)
+    // {
+    // }
+    // CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
 
-    /* Init ENET PLL */
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENABLE_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENET_25M_REF_EN_MASK;
-    while ((CCM_ANALOG->PLL_ENET & CCM_ANALOG_PLL_ENET_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
+    // /* Init ENET PLL */
+    // CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
+    // CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_POWERDOWN_MASK;
+    // CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENABLE_MASK;
+    // CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENET_25M_REF_EN_MASK;
+    // while ((CCM_ANALOG->PLL_ENET & CCM_ANALOG_PLL_ENET_LOCK_MASK) == 0)
+    // {
+    // }
+    // CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
 
     SwitchSystemClocks(LPM_PowerModeOverRun);
 }
@@ -234,33 +240,40 @@ void ClockSetToFullSpeedRun(void)
     }
     CCM_ANALOG->PLL_USB2_CLR = CCM_ANALOG_PLL_USB2_BYPASS_MASK;
 
-    /* Init AUDIO PLL */
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_AUDIO & CCM_ANALOG_PLL_AUDIO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
+    /* Deinit AUDIO PLL */
+    CLOCK_DeinitAudioPll();
+    /* Deinit VIDEO PLL */
+    CLOCK_DeinitVideoPll();
+    /* Deinit ENET PLL */
+    CLOCK_DeinitEnetPll();
 
-    /* Init VIDEO PLL */
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_ENABLE_MASK;
-    while ((CCM_ANALOG->PLL_VIDEO & CCM_ANALOG_PLL_VIDEO_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
+    // /* Init AUDIO PLL */
+    // CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
+    // CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_POWERDOWN_MASK;
+    // CCM_ANALOG->PLL_AUDIO_SET = CCM_ANALOG_PLL_AUDIO_ENABLE_MASK;
+    // while ((CCM_ANALOG->PLL_AUDIO & CCM_ANALOG_PLL_AUDIO_LOCK_MASK) == 0)
+    // {
+    // }
+    // CCM_ANALOG->PLL_AUDIO_CLR = CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
 
-    /* Init ENET PLL */
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_POWERDOWN_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENABLE_MASK;
-    CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENET_25M_REF_EN_MASK;
-    while ((CCM_ANALOG->PLL_ENET & CCM_ANALOG_PLL_ENET_LOCK_MASK) == 0)
-    {
-    }
-    CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
+    // /* Init VIDEO PLL */
+    // CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
+    // CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_POWERDOWN_MASK;
+    // CCM_ANALOG->PLL_VIDEO_SET = CCM_ANALOG_PLL_VIDEO_ENABLE_MASK;
+    // while ((CCM_ANALOG->PLL_VIDEO & CCM_ANALOG_PLL_VIDEO_LOCK_MASK) == 0)
+    // {
+    // }
+    // CCM_ANALOG->PLL_VIDEO_CLR = CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
+
+    // /* Init ENET PLL */
+    // CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
+    // CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_POWERDOWN_MASK;
+    // CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENABLE_MASK;
+    // CCM_ANALOG->PLL_ENET_SET = CCM_ANALOG_PLL_ENET_ENET_25M_REF_EN_MASK;
+    // while ((CCM_ANALOG->PLL_ENET & CCM_ANALOG_PLL_ENET_LOCK_MASK) == 0)
+    // {
+    // }
+    // CCM_ANALOG->PLL_ENET_CLR = CCM_ANALOG_PLL_ENET_BYPASS_MASK;
 
     SwitchSystemClocks(LPM_PowerModeFullRun);
 }
@@ -298,10 +311,8 @@ void ClockSetToLowSpeedRun(void)
 
     /* Deinit AUDIO PLL */
     CLOCK_DeinitAudioPll();
-
     /* Deinit VIDEO PLL */
     CLOCK_DeinitVideoPll();
-
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 
@@ -342,10 +353,8 @@ void ClockSetToLowPowerRun(void)
 
     /* Deinit AUDIO PLL */
     CLOCK_DeinitAudioPll();
-
     /* Deinit VIDEO PLL */
     CLOCK_DeinitVideoPll();
-
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 }
@@ -383,10 +392,8 @@ void ClockSetToSystemIdle(void)
 
     /* Deinit AUDIO PLL */
     CLOCK_DeinitAudioPll();
-
     /* Deinit VIDEO PLL */
     CLOCK_DeinitVideoPll();
-
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 
@@ -425,10 +432,8 @@ void ClockSetToLowPowerIdle(void)
 
     /* Deinit AUDIO PLL */
     CLOCK_DeinitAudioPll();
-
     /* Deinit VIDEO PLL */
     CLOCK_DeinitVideoPll();
-
     /* Deinit ENET PLL */
     CLOCK_DeinitEnetPll();
 
@@ -578,11 +583,6 @@ void APP_PrintRunFrequency(int32_t run_freq_only)
         PRINTF("SYSPLLPFD1:      %d Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd1Clk));
         PRINTF("SYSPLLPFD2:      %d Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd2Clk));
         PRINTF("SYSPLLPFD3:      %d Hz\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd3Clk));
-        PRINTF("ENETPLL0:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll0Clk));
-        PRINTF("ENETPLL1:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll1Clk));
-//        PRINTF("ENETPLL2:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_EnetPll2Clk));
-        PRINTF("AUDIOPLL:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_AudioPllClk));
-        PRINTF("VIDEOPLL:        %d Hz\r\n", CLOCK_GetFreq(kCLOCK_VideoPllClk));
     }
     PRINTF("***********************************************************\r\n");
     PRINTF("\r\n");
