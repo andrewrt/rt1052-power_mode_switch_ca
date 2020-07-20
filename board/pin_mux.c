@@ -73,9 +73,9 @@ void BOARD_InitPins(void) {
   GPIO_PortEnableInterrupts(GPIO5, 1U << 0U);
 
   /* Initialize GPIO functionality on SW1:1 (testing non WAKE pin for non SNVS wake) */
-  GPIO_PinInit(GPIO1, 20U, &SD_PWREN_config);
+  GPIO_PinInit(GPIO1, 18U, &SD_PWREN_config);
   /* Enable GPIO pin interrupt on SW1:1 (testing non WAKE pin for non SNVS wake) */
-  GPIO_PortEnableInterrupts(GPIO1, 1U << 20U);
+  GPIO_PortEnableInterrupts(GPIO1, 1U << 18U);
 
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_AD_B0_12_LPUART1_TX,        /* GPIO_AD_B0_12 is configured as LPUART1_TX */
